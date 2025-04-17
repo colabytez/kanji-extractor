@@ -10,13 +10,13 @@
 #include <io.h>
 using namespace std;
 
-#define KANJI_MIN   0x4E00
-#define KANJI_MAX   0x9FAF
+#define KANJI_MIN 0x4E00
+#define KANJI_MAX 0x9FAF
 
 union pools {
     struct kanjipool {
     public:
-        std::wstring kanjipool[10240];
+        std::wstring kanjipool[4096];
     };
 };
 
@@ -68,32 +68,60 @@ int main(int argc, char* argv[]) {
     _setmode(_fileno(stdout), _O_WTEXT);
     _setmode(_fileno(stdin), _O_WTEXT);
 
-    std::string filename;
+    std::wstring filename;
     
     if (argc == 1) {
-        std::wcout << "No arguments passed" << std::endl;
+        std::wcout << L"Enter the filename: ";
+        std::wcin >> filename;
+
+        std::wfstream kanjifile(filename);
+
+        kanjifile.imbue(std::locale("ja_JP.UTF-8"));
+
+        std::wstring kanjilines;
+
+        std::wstring line;
+        for (int iterator = 0; std::getline(kanjifile, line); iterator++) {
+            kanjilines += line;
+        }
+
+        pools::kanjipool kanjiobj = kanjilexer(kanjilines);
+
+        printkanji(kanjiobj);
+
+        system("pause");
     }
+
     else if (argc == 2) {
-        filename = argv[1];
+        char*(filename) = argv[1];
+
+        std::wfstream kanjifile(filename);
+
+        kanjifile.imbue(std::locale("ja_JP.UTF-8"));
+
+        std::wstring kanjilines;
+
+        std::wstring line;
+        for (int iterator = 0; std::getline(kanjifile, line); iterator++) {
+            kanjilines += line;
+        }
+
+        pools::kanjipool kanjiobj = kanjilexer(kanjilines);
+
+        printkanji(kanjiobj);
+
+        system("pause");
     }
 
-    std::wfstream kanjifile(filename.c_str());
-
-    kanjifile.imbue(std::locale("ja_JP.UTF-8"));
-
-    std::wstring kanjilines;
-
-    std::wstring line;
-    for (int iterator = 0; std::getline(kanjifile, line); iterator++) {
-        kanjilines += line;
+    else if (argc > 2) {
+        std::wcout << L"Too many arguments..." << std::endl;
+        return 1;
     }
 
-    // std::wcout << L"You entered: " << kanjifile << std::endl;
-
-    // std::wcout << L"Extracted kanji:" << std::endl;
-    pools::kanjipool kanjiobj = kanjilexer(kanjilines);
-
-    printkanji(kanjiobj);
+    else {
+        std::wcout << L"Something went wrong..." << std::endl;
+        return 1;
+    }
 
     return 0;
 }
