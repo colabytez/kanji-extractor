@@ -1,13 +1,13 @@
 #pragma execution_character_set( "utf-8" )
 #include <iostream>
 #include <clocale>
-#include <windows.h>
 #include <vector>
 #include <fstream>
 #include <sstream>
 #include <fcntl.h>
-#include <string>
+#include <windows.h>
 #include <io.h>
+#include <string>
 using namespace std;
 
 #define KANJI_MIN 0x4E00
